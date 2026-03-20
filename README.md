@@ -8,6 +8,8 @@ Polymarket profile (activity): https://polymarket.com/@nobuyoshi005?tab=activity
 
 The project provides canonical schemas and a shared strategy-intent interface that Phase 3+ extends into **Polymarket API** WebSocket ingestion, backtesting, and paper trading.
 
+Telegram: [@solanabull0](https://t.me/solanabull0)
+
 ## Status
 
 Phase 1-2 scaffold (architecture + shared schemas + shared strategy interface). Phase 3+ connectivity is next.
