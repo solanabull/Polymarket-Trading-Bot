@@ -1,0 +1,39 @@
+{
+  "mode": "live",
+  "app": {
+    "strategy_id": "mm_microstructure_v1",
+    "log_level": "info"
+  },
+  "markets": {
+    "conditions": ["<CONDITION_ID_1>"]
+  },
+  "risk_limits": {
+    "max_position_per_token": 100.0,
+    "max_order_size": 25.0,
+    "max_quote_width_bps": 50.0,
+    "max_daily_loss": 25.0,
+    "stale_market_data_ms": 1500,
+    "kill_switch": false,
+    "category_exposure": [
+      { "category": "default", "max_exposure": 200.0 }
+    ]
+  },
+  "data": {
+    "market_ws_url": "wss://<POLYMARKET_PUBLIC_WS_URL>/markets",
+    "heartbeat_timeout_ms": 10000
+  },
+  "auth": {
+    "clob_base_url": "https://<POLYMARKET_CLOB_BASE>",
+    "api_key_env": "POLYMARKET_API_KEY",
+    "wallet_private_key_env": "POLYMARKET_WALLET_PRIVATE_KEY",
+    "idempotency_salt_env": "POLYMARKET_IDEMPOTENCY_SALT"
+  },
+  "execution": {
+    "retry_policy": {
+      "max_transient_retries": 3,
+      "backoff_ms": 200
+    },
+    "kill_switch_on_errors": true
+  }
+}
+

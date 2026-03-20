@@ -1,0 +1,275 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/polymarket-trading-bot/shared/schemas/messages.schema.json",
+  "title": "Polymarket Trading Bot - Canonical Message Contracts",
+  "type": "object",
+  "description": "Language-agnostic schemas shared across Rust, TypeScript, and Python implementations.",
+  "definitions": {
+    "MarketEventBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "event_id": { "type": "string", "minLength": 1 },
+        "timestamp_ms": { "type": "integer", "minimum": 0 },
+        "condition_id": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1, "description": "e.g., public_market_ws" },
+        "sequence": { "type": "integer", "minimum": 0, "description": "Monotonic sequence per stream when available" }
+      },
+      "required": ["event_id", "timestamp_ms", "condition_id", "source"]
+    },
+    "OrderBookLevel": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "price": { "type": "number", "minimum": 0 },
+        "price_ticks": { "type": "integer", "minimum": 0 },
+        "size": { "type": "number", "exclusiveMinimum": 0 }
+      },
+      "required": ["size"],
+      "oneOf": [
+        { "required": ["price"] },
+        { "required": ["price_ticks"] }
+      ]
+    },
+    "MarketOrderBookSnapshot": {
+      "allOf": [
+        { "$ref": "#/definitions/MarketEventBase" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "const": "orderbook_snapshot" },
+            "token_id": { "type": "string", "minLength": 1 },
+            "bids": { "type": "array", "items": { "$ref": "#/definitions/OrderBookLevel" } },
+            "asks": { "type": "array", "items": { "$ref": "#/definitions/OrderBookLevel" } }
+          },
+          "required": ["type", "token_id", "bids", "asks"]
+        }
+      ]
+    },
+    "MarketOrderBookDelta": {
+      "allOf": [
+        { "$ref": "#/definitions/MarketEventBase" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "const": "orderbook_delta" },
+            "token_id": { "type": "string", "minLength": 1 },
+            "bids_add": { "type": "array", "items": { "$ref": "#/definitions/OrderBookLevel" } },
+            "bids_remove": { "type": "array", "items": { "$ref": "#/definitions/OrderBookLevel" } },
+            "asks_add": { "type": "array", "items": { "$ref": "#/definitions/OrderBookLevel" } },
+            "asks_remove": { "type": "array", "items": { "$ref": "#/definitions/OrderBookLevel" } }
+          },
+          "required": ["type", "token_id"]
+        }
+      ]
+    },
+    "MarketTrade": {
+      "allOf": [
+        { "$ref": "#/definitions/MarketEventBase" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "const": "trade" },
+            "token_id": { "type": "string", "minLength": 1 },
+            "side": { "type": "string", "enum": ["buy", "sell"] },
+            "price": { "type": "number", "minimum": 0 },
+            "price_ticks": { "type": "integer", "minimum": 0 },
+            "size": { "type": "number", "exclusiveMinimum": 0 }
+          },
+          "required": ["type", "token_id", "side", "size"],
+          "oneOf": [
+            { "required": ["price"] },
+            { "required": ["price_ticks"] }
+          ]
+        }
+      ]
+    },
+    "MarketHeartbeat": {
+      "allOf": [
+        { "$ref": "#/definitions/MarketEventBase" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "const": "heartbeat" }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+    "MarketEvent": {
+      "oneOf": [
+        { "$ref": "#/definitions/MarketOrderBookSnapshot" },
+        { "$ref": "#/definitions/MarketOrderBookDelta" },
+        { "$ref": "#/definitions/MarketTrade" },
+        { "$ref": "#/definitions/MarketHeartbeat" }
+      ]
+    },
+
+    "OrderSide": { "type": "string", "enum": ["buy", "sell"] },
+    "IntentAction": { "type": "string", "enum": ["place", "cancel", "replace"] },
+    "OrderType": { "type": "string", "enum": ["limit"] },
+
+    "OrderIntent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "intent_id": { "type": "string", "minLength": 1 },
+        "strategy_id": { "type": "string", "minLength": 1 },
+        "timestamp_ms": { "type": "integer", "minimum": 0 },
+
+        "intent_type": { "$ref": "#/definitions/IntentAction" },
+        "token_id": { "type": "string", "minLength": 1 },
+
+        "side": { "$ref": "#/definitions/OrderSide" },
+        "order_type": { "$ref": "#/definitions/OrderType" },
+
+        "price": { "type": "number", "minimum": 0 },
+        "price_ticks": { "type": "integer", "minimum": 0 },
+        "size": { "type": "number", "exclusiveMinimum": 0 },
+
+        "client_order_id": { "type": "string", "minLength": 1 },
+        "target_order_id": { "type": "string", "minLength": 1, "description": "Used for cancel/replace if exchange order id is known" }
+      },
+      "required": [
+        "intent_id",
+        "strategy_id",
+        "timestamp_ms",
+        "intent_type",
+        "token_id",
+        "client_order_id"
+      ],
+      "allOf": [
+        {
+          "if": { "properties": { "intent_type": { "const": "place" } }, "required": ["intent_type"] },
+          "then": { "required": ["side", "order_type", "size"] }
+        }
+      ]
+    },
+
+    "StrategyOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "strategy_output_id": { "type": "string", "minLength": 1 },
+        "timestamp_ms": { "type": "integer", "minimum": 0 },
+        "strategy_id": { "type": "string", "minLength": 1 },
+
+        "reason_codes": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "intents": { "type": "array", "items": { "$ref": "#/definitions/OrderIntent" } },
+        "debug": { "type": "object", "description": "Optional debugging metadata, must be safe to persist/log" }
+      },
+      "required": ["strategy_output_id", "timestamp_ms", "strategy_id", "intents"]
+    },
+
+    "RiskDecisionStatus": { "type": "string", "enum": ["approved", "modified", "rejected"] },
+    "RiskDecisionReasonCode": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Machine-readable reason codes, e.g. STALE_MARKET_DATA"
+    },
+
+    "RiskDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": { "type": "string", "minLength": 1 },
+        "timestamp_ms": { "type": "integer", "minimum": 0 },
+        "intent_id": { "type": "string", "minLength": 1 },
+        "status": { "$ref": "#/definitions/RiskDecisionStatus" },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": { "$ref": "#/definitions/RiskDecisionReasonCode" },
+              "message": { "type": "string", "minLength": 1 }
+            },
+            "required": ["code", "message"]
+          }
+        },
+
+        "effective_intent": { "$ref": "#/definitions/OrderIntent", "description": "Present only when modified" }
+      },
+      "required": ["decision_id", "timestamp_ms", "intent_id", "status", "reasons"]
+    },
+
+    "RiskLimits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_position_per_token": { "type": "number", "exclusiveMinimum": 0 },
+        "max_order_size": { "type": "number", "exclusiveMinimum": 0 },
+        "max_quote_width_bps": { "type": "number", "exclusiveMinimum": 0 },
+        "max_daily_loss": { "type": "number" },
+        "stale_market_data_ms": { "type": "integer", "minimum": 0 },
+        "kill_switch": { "type": "boolean" },
+        "category_exposure": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "category": { "type": "string", "minLength": 1 },
+              "max_exposure": { "type": "number" }
+            },
+            "required": ["category", "max_exposure"]
+          }
+        }
+      },
+      "required": [
+        "max_position_per_token",
+        "max_order_size",
+        "max_quote_width_bps",
+        "max_daily_loss",
+        "stale_market_data_ms",
+        "kill_switch"
+      ]
+    },
+
+    "FillEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fill_id": { "type": "string", "minLength": 1 },
+        "timestamp_ms": { "type": "integer", "minimum": 0 },
+        "condition_id": { "type": "string", "minLength": 1 },
+        "token_id": { "type": "string", "minLength": 1 },
+
+        "order_id": { "type": "string", "minLength": 1 },
+        "client_order_id": { "type": "string", "minLength": 1 },
+
+        "side": { "$ref": "#/definitions/OrderSide" },
+        "price": { "type": "number", "minimum": 0 },
+        "price_ticks": { "type": "integer", "minimum": 0 },
+        "size": { "type": "number", "exclusiveMinimum": 0 }
+      },
+      "required": ["fill_id", "timestamp_ms", "condition_id", "token_id", "order_id", "client_order_id", "side", "size"],
+      "oneOf": [
+        { "required": ["price"] },
+        { "required": ["price_ticks"] }
+      ]
+    },
+
+    "Position": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "condition_id": { "type": "string", "minLength": 1 },
+        "token_id": { "type": "string", "minLength": 1 },
+
+        "quantity": { "type": "number" },
+        "avg_cost": { "type": "number" },
+
+        "realized_pnl": { "type": "number" },
+        "unrealized_pnl": { "type": "number" }
+      },
+      "required": ["condition_id", "token_id", "quantity", "avg_cost", "realized_pnl", "unrealized_pnl"]
+    }
+  }
+}
+

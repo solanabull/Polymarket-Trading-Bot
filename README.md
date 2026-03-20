@@ -1,277 +1,131 @@
+# Polymarket Trading Bot (Rust, TypeScript, Python) | Low-Latency Prediction Market Bot
 
-# 🚀 Solana Pump.fun Sniper Bot (Rust Edition) 🦀  
-### Ultra-Low Latency Solana Trading Bot for Pump.fun Token Launches
+A production-grade **Polymarket trading bot** and **prediction market bot** framework for low-latency crypto trading bots, implemented in Rust, TypeScript, and Python.
 
-📞 **Telegram Support:**  
-👉 **[@solanabull0](https://t.me/solanabull0)**
+Built from real Polymarket trading experience on the CLOB, it reflects practical requirements for safe order lifecycle handling, risk checks, and observability.
 
----
+Polymarket profile (activity): https://polymarket.com/@nobuyoshi005?tab=activity
 
-## 🔥 What Is This?
+The project provides canonical schemas and a shared strategy-intent interface that Phase 3+ extends into **Polymarket API** WebSocket ingestion, backtesting, and paper trading.
 
-**Solana Pump.fun Sniper Bot** is a **high-performance Rust-based Solana trading bot** designed specifically for **sniping Pump.fun token launches** with **extreme speed, safety filters, and automated risk management**.
+## Status
 
-Unlike generic Solana trading bots, this project is **Pump.fun-native**, focusing on **real-time detection, ultra-fast execution, and capital protection**.
+Phase 1-2 scaffold (architecture + shared schemas + shared strategy interface). Phase 3+ connectivity is next.
 
-> Built with **Rust** for maximum speed, reliability, and low latency.
+![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)
+![Languages](https://img.shields.io/badge/languages-Rust%20%7C%20TypeScript%20%7C%20Python-orange.svg)
+![Status](https://img.shields.io/badge/status-Phase%201-2%20scaffold-lightgrey.svg)
 
----
+## Features
 
-## ⚠️ Disclaimer
+- Low-latency **Polymarket trading bot** architecture (event-driven critical path)
+- Shared JSON schemas for market events, order intents, fills, positions, and risk decisions
+- Strategy interface that emits intents only (execution and risk are isolated modules)
+- Deterministic replay and backtest-first design (replay log format + dataset placeholder)
+- Paper trading mode foundations (config examples + contract-driven design)
+- Multi-language implementations (Rust, TypeScript, Python)
+- Safety-first risk controls design (kill switch, stale-data guard, exposure caps)
 
-This software is provided **for educational and research purposes only**.  
-Cryptocurrency trading involves significant risk.  
-**You are fully responsible for any losses.**  
-Never trade with funds you cannot afford to lose.
+## Architecture
 
----
-
-## 🚀 Key Features
-
-### ⚡ Performance
-- Written in **Rust** for ultra-low latency
-- Async execution using **Tokio**
-- Optimized Solana transaction pipeline
-
-### 👀 Real-Time Pump.fun Monitoring
-- Native **WebSocket log subscriptions**
-- Instant detection of new Pump.fun token launches
-- No polling, no delays
-
-### 🧠 Smart Token Filtering
-- Mint & freeze authority checks
-- Liquidity & market cap validation
-- Honeypot & scam pattern detection
-- Creator wallet blacklist support
-
-### 🤖 Automated Trading
-- Auto-buy & auto-sell
-- Take-profit, stop-loss, trailing stop-loss
-- Trade cooldown & rate limiting
-
-### 🛡️ Safety First
-- Dedicated wallet support
-- Exposure & frequency limits
-- Suspicious token auto-rejection
-
-### 🧪 Simulation Mode
-- Test strategies **without risking real SOL**
-- Ideal for tuning & strategy validation
-
----
-
-## 🧰 Tech Stack
-
-- **Rust** – High-performance systems language
-- **Tokio** – Async runtime
-- **Solana SDK** – Native blockchain integration
-- **WebSockets** – Real-time log monitoring
-- **Serde** – Configuration & data serialization
-- **Tracing** – Structured logging
-
----
-
-## 📦 Installation
-
-### Prerequisites
-- Rust (via `rustup`)
-- Solana RPC provider (Helius recommended)
-
-### Build from Source
-
-```bash
-git clone https://github.com/yourname/solana-pumpfun-sniper-bot
-cd solana-pumpfun-sniper-bot
-cargo build --release
-````
-
----
-
-## ⚙️ Configuration
-
-```bash
-cp env.example .env
-```
-
-### 🔑 Required
-
-```env
-RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY
-WS_URL=wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY
-PRIVATE_KEY=YOUR_PRIVATE_KEY
-```
-
-### 💰 Trading Settings
-
-```env
-BUY_AMOUNT_SOL=0.1
-MAX_SLIPPAGE=25
-
-TAKE_PROFIT_PERCENTAGE=100
-STOP_LOSS_PERCENTAGE=30
-TRAILING_STOP_LOSS_PERCENTAGE=10
-```
-
-### 🛡️ Safety Controls
-
-```env
-MIN_LIQUIDITY=5
-MIN_MARKET_CAP=1000
-MAX_MARKET_CAP=25000
-TRADING_COOLDOWN_MS=5000
-MAX_TRADES_PER_HOUR=10
-```
-
-### 🧪 Simulation Mode
-
-```env
-SIMULATION_MODE=true
-```
-
----
-
-## 🚀 Usage
-
-### Development / Testing (Recommended)
-
-```bash
-SIMULATION_MODE=true
-RUST_LOG=solana_pumpfun_sniper=debug cargo run
-```
-
-### Production
-
-```bash
-cargo build --release
-./target/release/solana-pumpfun-sniper
-```
-
----
-
-## 🧠 How It Works
-
-### 1️⃣ Detection
-
-* Subscribes to **Pump.fun program logs**
-* Instantly detects new token launches
-
-### 2️⃣ Analysis
-
-* Validates liquidity, market cap, authorities
-* Scores tokens based on safety & momentum
-
-### 3️⃣ Execution
-
-* Builds native Solana transactions
-* Sends optimized transactions via RPC
-* Tracks positions & PnL in real time
-
----
-
-## 📊 Recommended Presets
-
-### Conservative (Beginners)
-
-```env
-BUY_AMOUNT_SOL=0.05
-TAKE_PROFIT_PERCENTAGE=50
-STOP_LOSS_PERCENTAGE=20
-MAX_TRADES_PER_HOUR=5
-```
-
-### Aggressive (High Risk)
-
-```env
-BUY_AMOUNT_SOL=0.2
-TAKE_PROFIT_PERCENTAGE=200
-STOP_LOSS_PERCENTAGE=50
-MAX_TRADES_PER_HOUR=20
-```
-
----
-
-## 🧱 Project Architecture
+Market data is normalized into a shared contract, then flows through strategy, risk, and execution layers.
 
 ```text
-src/
-├── main.rs
-├── config.rs
-├── monitors/
-├── traders/
-├── utils/
-└── types.rs
+Public Market WebSocket (orderbook/trades)
+                 |
+                 v
+          Orderbook State Manager (L2 + top-of-book metrics)
+                 |
+                 v
+         Strategy Engine (emits OrderIntents only)
+                 |
+                 v
+             Risk Engine (approve/modify/reject)
+                 |
+                 v
+     Execution Engine (Polymarket CLOB API order lifecycle)
+                 |
+                 v
+Portfolio / Positions / PnL (from fills + reconciliation)
 ```
 
-### Core Modules
+See also: [`/docs/architecture.md`](/docs/architecture.md), [`/docs/trading-flow.md`](/docs/trading-flow.md), [`/docs/risk-management.md`](/docs/risk-management.md).
 
-* **PumpFunMonitor** – Real-time launch detection
-* **TokenAnalyzer** – Safety & opportunity scoring
-* **Trader** – Buy/sell execution
-* **TransactionBuilder** – Instruction creation
+## Repository Layout
 
----
+- `/apps/`
+  - `/apps/rust-bot/` (Rust core: contracts + strategy trait scaffolding)
+  - `/apps/ts-bot/` (TypeScript control plane: contracts + strategy interface scaffolding)
+  - `/apps/py-bot/` (Python: contracts + strategy interface scaffolding for research)
+- `/shared/`
+  - `/shared/schemas/` (canonical JSON schemas)
+  - `/shared/spec/` (shared strategy interface specification)
+  - `/shared/sample-configs/` (backtest/paper/live config examples)
+- `/docs/` (architecture, trading flow, risk, integration notes, latency budget)
 
-## ❓ FAQ (SEO Optimized)
+## Quick Start
 
-**Is this a Pump.fun sniper bot?**
-✅ Yes. It is **exclusively designed for Pump.fun token launches**.
+This is a scaffold, so "run the bot" will be Phase 3+. For Phase 1-2, validate that the shared contracts and interfaces compile/typecheck.
 
-**Is Rust faster than Node.js bots?**
-✅ Yes. Rust offers **lower latency and better memory safety**.
+1. Clone the repo
+2. Typecheck/build each implementation
 
-**Can I test without real money?**
-✅ Yes. Simulation mode is included.
+### Rust (contracts + strategy trait)
 
-**Does this prevent rug pulls?**
-⚠️ It includes strong safety checks, but **no bot is 100% safe**.
+```bash
+cd apps/rust-bot
+cargo test
+```
 
----
+### TypeScript (contracts + strategy interface)
 
-## 🛠️ Troubleshooting
+```bash
+cd apps/ts-bot
+npm install
+npm run typecheck
+```
 
-**WebSocket connection failed**
+### Python (contracts + strategy interface)
 
-* Verify `WS_URL`
-* Use a paid RPC (Helius / QuickNode)
+```bash
+cd apps/py-bot
+python -c "import py_bot; print('py_bot imported')"
+```
 
-**Transaction failed**
+## Use Cases
 
-* Increase slippage
-* Ensure enough SOL for fees
+- Build a **prediction market bot** for Polymarket research and live trading
+- Develop and compare short-horizon trading strategies (momentum, breakout, market making)
+- Run deterministic backtests and event replay
+- Prototype analytics and microstructure features in Python
+- Integrate a safe **Polymarket API** execution layer with strict risk controls
 
-**Rate limited**
+## Roadmap
 
-* Lower `MAX_TRADES_PER_HOUR`
-* Increase cooldown
+- Phase 1-2 (already in this repo): scaffold, contracts, shared strategy interface, config examples
+- Phase 3+: market data layer (public WebSocket), orderbook state, authenticated trading layer (CLOB), risk engine, paper trading, tests, and full backtesting
 
----
+## FAQ
 
-## 🤝 Contributing
+### What is Polymarket trading bot?
 
-Contributions are welcome.
+A Polymarket trading bot is a system that reads prediction market data (typically via WebSockets), then uses a trading strategy to place/cancel/replace orders through Polymarket's CLOB, with fills reflected in portfolio and PnL tracking.
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests
-4. Open a Pull Request
+### Is this bot profitable?
 
----
+This repo does not promise profitability. It provides the production-grade framework you need to implement strategies and evaluate them via backtesting and paper trading.
 
-## 📄 License
+### Does this repository include Polymarket API integration yet?
 
-MIT License
+Not yet. Phase 3+ will add authenticated order lifecycle and real-time market data ingestion through Polymarket's official WebSocket and CLOB trading flows.
 
----
+### Which language should I use?
 
-## ⚠️ Final Risk Warning
+- Rust: performance-oriented core and low-latency components
+- TypeScript: orchestration/services and monitoring
+- Python: research, analytics, and backtesting
 
-Automated trading bots **do not eliminate risk**.
-Start small, monitor performance, and trade responsibly.
+## Keywords
 
----
-
-📞 **Telegram Support:**
-👉 **[@solanabull0](https://t.me/solanabull0)**
-
-⭐ If this repository helps you, please **star it** — it improves GitHub & Google visibility.
+Polymarket trading bot, prediction market bot, crypto trading bot, Polymarket API, CLOB trading bot, low-latency event-driven trading system
 

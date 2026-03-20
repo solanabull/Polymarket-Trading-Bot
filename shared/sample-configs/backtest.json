@@ -1,0 +1,26 @@
+{
+  "mode": "backtest",
+  "app": {
+    "strategy_id": "mm_microstructure_v1",
+    "log_level": "info"
+  },
+  "markets": {
+    "conditions": ["<CONDITION_ID_1>", "<CONDITION_ID_2>"]
+  },
+  "risk_limits": {
+    "max_position_per_token": 100.0,
+    "max_order_size": 25.0,
+    "max_quote_width_bps": 75.0,
+    "max_daily_loss": 50.0,
+    "stale_market_data_ms": 2500,
+    "kill_switch": false,
+    "category_exposure": [
+      { "category": "default", "max_exposure": 200.0 }
+    ]
+  },
+  "data": {
+    "replay_path": "shared/test-data/replay_events.ndjson",
+    "deterministic_replay": true
+  }
+}
+

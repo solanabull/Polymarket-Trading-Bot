@@ -1,0 +1,30 @@
+{
+  "mode": "paper",
+  "app": {
+    "strategy_id": "mm_microstructure_v1",
+    "log_level": "info"
+  },
+  "markets": {
+    "conditions": ["<CONDITION_ID_1>"]
+  },
+  "risk_limits": {
+    "max_position_per_token": 100.0,
+    "max_order_size": 25.0,
+    "max_quote_width_bps": 75.0,
+    "max_daily_loss": 50.0,
+    "stale_market_data_ms": 2500,
+    "kill_switch": false,
+    "category_exposure": [
+      { "category": "default", "max_exposure": 200.0 }
+    ]
+  },
+  "data": {
+    "market_ws_url": "wss://<POLYMARKET_PUBLIC_WS_URL>/markets",
+    "heartbeat_timeout_ms": 10000
+  },
+  "paper_trading": {
+    "simulate_fills_against": "top_of_book",
+    "slippage_tolerance_bps": 10.0
+  }
+}
+

@@ -1,0 +1,4 @@
+{"event_id":"evt-1","timestamp_ms":1700000000000,"condition_id":"<CONDITION_ID_1>","source":"public_market_ws","sequence":1,"type":"orderbook_snapshot","token_id":"<TOKEN_ID_1>","bids":[{"price":0.42,"size":10.0}],"asks":[{"price":0.44,"size":12.0}]}
+{"event_id":"evt-2","timestamp_ms":1700000000500,"condition_id":"<CONDITION_ID_1>","source":"public_market_ws","sequence":2,"type":"trade","token_id":"<TOKEN_ID_1>","side":"buy","price":0.43,"size":3.0}
+{"event_id":"evt-3","timestamp_ms":1700000001000,"condition_id":"<CONDITION_ID_1>","source":"public_market_ws","sequence":3,"type":"heartbeat"}
+
